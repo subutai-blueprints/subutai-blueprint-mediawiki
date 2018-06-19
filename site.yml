@@ -25,9 +25,14 @@
         - php-cli
         - git
 
-    - name: Download and Extract mediawiki tar ball
+    - name: Download mediawiki
+      get_url:
+          url: https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.0.tar.gz
+          dest: /tmp/mediawiki.tar.gz
+
+    - name: Extract mediawiki tar ball
       unarchive:
-          src:  https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.0.tar.gz
+          src:  /tmp/mediawiki.tar.gz
           dest: /var/lib/mediawiki
           owner: www-data
           group: www-data

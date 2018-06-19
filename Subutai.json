@@ -47,7 +47,7 @@
         "environmentName": {
             "description": "Enter the environment name",
             "type": "string",
-            "default": "nc",
+            "default": "mediawiki",
             "validation": "[a-zA-Z0-9]+"
         },
         "domainName": {
