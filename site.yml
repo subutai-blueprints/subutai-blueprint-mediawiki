@@ -1,0 +1,64 @@
+- hosts: all
+  remote_user: root
+  tasks: 
+    - name: Install required debs
+      apt: 
+        name: "{{ item }}"
+        state: present
+      with_items: 
+        - php7.0-fpm
+        - php7.0-mbstring
+        - php7.0-mcrypt
+        - php7.0-mysql
+        - php7.0-zip
+        - php7.0-xml
+        - php7.0-gd
+        - php7.0-curl
+        - apache2
+        - mariadb-server
+        - mariadb-client
+        - php-apcu
+        - php-intl
+        - imagemagick
+        - inkscape
+        - php-gd
+        - php-cli
+        - git
+
+    - name: Download and Extract mediawiki tar ball
+      unarchieve:
+          src:  https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.0.tar.gz
+          dest: /var/lib/mediawiki
+          owner: www-data
+          group: www-data
+
+    - name: Create DataBase
+      mysql_db:
+          name: pi_wiki
+          state: present
+          encoding: utf8
+
+    - name: Create DataBase User
+      mysql_db:
+          name:  new_mysql_user
+          password: "mediawiki"
+          priv: new_mysql_user.*:ALL
+
+    - name: Remove index
+      file:
+          name: /var/www/html/index.html
+          state: absent
+
+    - name: Symlinking
+      file:
+          src: /var/lib/mediawiki
+          dest: /var/www/html/mediawiki
+          owner: www-data
+          group: www-data
+          state: link
+
+    - name: Restart Apache
+      service:
+          name: apache2
+          state: restarted
+
