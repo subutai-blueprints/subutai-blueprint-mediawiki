@@ -1,5 +1,11 @@
 - hosts: all
   remote_user: root
+  vars:
+      domain_name: ubadevel.envs.subutai.cloud
+      admin_user: admin
+      admin_pwd:  topsecret
+      mw_version: 1.31.0
+
   tasks: 
     - name: Install required debs
       apt: 
@@ -31,44 +37,39 @@
           url: https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.0.tar.gz
           dest: /tmp/mediawiki.tgz
 
-    - name: Create mediawiki dir
-      file:
-              name: /var/lib/mediawiki
-              state: directory
-
     - name: Extract mediawiki tar ball
       unarchive:
           src:  /tmp/mediawiki.tgz
-          dest: /var/lib/mediawiki
+          dest: /var/www/html
           remote_src: yes
           owner: www-data
           group: www-data
 
-    - name: Create DataBase
-      mysql_db:
-          name: pi_wiki
-          state: present
-          encoding: utf8
 
     - name: Create DataBase User
       mysql_user:
-          name:  mediawiki_user
-          password: "mediawiki"
-          priv: mediawiki_user.*:ALL
+          name: "{{ admin_user }}"
+          password: "{{ admin_pwd }}"
+          priv: "{{ admin_user }}.*:ALL"
           state: present
+
+    - name: Create DataBase
+      mysql_db:
+          name: mwdb
+          state: present
+          encoding: utf8
+          login_user: "{{ admin_user}}"
+          login_password: "{{ admin_pwd }}"
+
+    - name: Run installation script
+      shell: php maintenance/install.php "--server={{ domain_name }}"  --dbserver=localhost --dbname=mwdb "--dbuser={{ admin_user }}" "--dbpass={{ admin_pwd }}"
+      args:
+          chdir: /var/www-data/html/mediawiki-1.31.0
 
     - name: Remove index
       file:
           name: /var/www/html/index.html
           state: absent
-
-    - name: Symlinking
-      file:
-          src: /var/lib/mediawiki
-          dest: /var/www/html/mediawiki
-          owner: www-data
-          group: www-data
-          state: link
 
     - name: Restart Apache
       service:

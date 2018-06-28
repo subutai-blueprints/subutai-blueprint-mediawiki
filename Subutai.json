@@ -33,7 +33,15 @@
             {
                 "key": "domain_name",
                 "value": "${domainName}"
-            }        ],
+            },
+            {
+                "key": "admin_user",
+                "value": "${wikiAdminUser}"
+            },
+            {
+                "key": "admin_pwd",
+                "value": "${wikiAdminPwd}"
+            }],
         "groups": [
             {
                 "name": "gl",
@@ -61,6 +69,19 @@
             "type": "enum",
             "default": "SMALL",
             "validation": "SMALL,MEDIUM,LARGE,HUGE"
+        },
+        "wikiAdminUser": {
+            "description": "Wikimedia administrator's username",
+            "type": "string",
+            "default": "admin",
+            "validation": "[a-zA-Z0-9]+"
+        },
+        "wikiAdminPwd": {
+            "description": "Wiki administrator's password",
+            "type": "string",
+            "default": "topsecret",
+            "validation": "[a-zA-Z0-9]+"
         }
+
     }
 }
