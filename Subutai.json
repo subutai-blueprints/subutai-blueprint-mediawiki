@@ -31,15 +31,19 @@
         "ansible-playbook": "site.yml",
         "extra-vars": [
             {
-                "key": "domain_name",
+                "key": "domain_name_var",
                 "value": "${domainName}"
             },
             {
-                "key": "admin_user",
+                "key": "admin_user_var",
                 "value": "${wikiAdminUser}"
             },
             {
-                "key": "admin_pwd",
+                "key": "wiki_name_var",
+                "value": "${wikiName}"
+            },
+            {
+                "key": "admin_pwd_var",
                 "value": "${wikiAdminPwd}"
             }],
         "groups": [
@@ -74,6 +78,12 @@
             "description": "Wikimedia administrator's username",
             "type": "string",
             "default": "admin",
+            "validation": "[a-zA-Z0-9]+"
+        },
+        "wikiName": {
+            "description": "Wikimedia site Name",
+            "type": "string",
+            "default": "MyWiki",
             "validation": "[a-zA-Z0-9]+"
         },
         "wikiAdminPwd": {
