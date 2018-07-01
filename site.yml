@@ -39,14 +39,22 @@
           url: https://releases.wikimedia.org/mediawiki/1.31/mediawiki-1.31.0.tar.gz
           dest: /tmp/mediawiki.tgz
 
+    - name: Create mediawiki Directory
+      file:
+          path: /var/lib/mediawiki
+          state: directory
+
+
     - name: Extract mediawiki tar ball
       unarchive:
           src:  /tmp/mediawiki.tgz
-          dest: /var/www/html
+          dest: /var/lib/mediawiki
           remote_src: yes
           owner: www-data
           group: www-data
 
+    - name: Rename media wiki root dir
+      command: creates=/var/lib/mediawiki/wiki mv "/var/lib/mediawiki/mediawiki-{{ mw_version }}" /var/lib/mediawiki/wiki
 
     - name: Create DataBase User
       mysql_user:
@@ -61,18 +69,36 @@
           encoding: utf8
           state: present
 
-    - name: Run installation script
-      shell: php maintenance/install.php "--server={{ domain_name }}"  --dbserver=localhost --dbname=mwdb "--dbuser={{ admin_user }}" "--dbpass={{ admin_pwd }}" "--pass={{ admin_pwd }}" "{{ wiki_name }}" "{{ admin_user }}"
-      args:
-          chdir: /var/www/html/mediawiki-1.31.0
-
-    - name: Remove index
+    - name: Remove html dir
       file:
-          name: /var/www/html/index.html
+          name: /var/www/html
           state: absent
+
+    - name: Create symlink to mediawiki
+      file:
+          state: link
+          src: "/var/lib/mediawiki"
+          dest: /var/www/html
+          owner: www-data
+          group: www-data
+    
+    - name: Remove previous install config
+      file:
+          name: "/var/www/html/wiki/LocalSettings.php"
+          state: absent
+
+    - name: Run installation script
+      shell: php maintenance/install.php  --dbserver=localhost --dbname=mwdb "--dbuser={{ admin_user }}" "--dbpass={{ admin_pwd }}" "--pass={{ admin_pwd }}" "{{ wiki_name }}" "{{ admin_user }}"
+      args:
+          chdir: /var/www/html/wiki
 
     - name: Configure Apache
       apache2_module: name=rewrite state=present
+
+    - name: Modifiy Apache default site
+      copy:
+          src: 000-default.conf
+          dest: /etc/apache2/sites-available/000-default.conf
       
     - name: Restart Apache
       service:
