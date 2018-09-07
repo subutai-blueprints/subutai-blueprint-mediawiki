@@ -27,7 +27,7 @@
         }
     ],
     "ansible-configuration": {
-        "source-url": "https://github.com/marcoarthur/subutai-blueprint-mediawiki/archive/master.zip",
+        "source-url": "https://github.com/subutai-blueprints/subutai-blueprint-mediawiki/archive/master.zip",
         "ansible-playbook": "site.yml",
         "extra-vars": [
             {
